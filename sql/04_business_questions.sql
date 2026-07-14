@@ -200,31 +200,67 @@ LIMIT 10;
 
 -- Q16. What is the average revenue generated per seller?
 
+WITH SELLER_REVENUE AS (
+SELECT seller_id, SUM(price) AS TOTAL_REVENUE
+FROM
+	order_items
+GROUP BY 
+	seller_id
+	)
+SELECT ROUND(AVG(TOTAL_REVENUE),2) AS AVG_REVENUE_PER_SELLER
+FROM SELLER_REVENUE;
 
 
 -- ============================================================
 -- SECTION 4: CUSTOMER ANALYSIS
--- Purpose:
--- Understand customer distribution and purchasing behavior.
 -- ============================================================
 
 -- Q17. Which states have the highest number of customers?
 
+SELECT customer_state, COUNT(customer_id) AS NO_OF_CUSTOMERS
+FROM customers
+GROUP BY customer_state
+ORDER BY NO_OF_CUSTOMERS DESC;
+
 -- Q18. Which cities have the highest number of customers?
+
+SELECT customer_city, COUNT(customer_id) AS NO_OF_CUSTOMERS
+FROM customers
+GROUP BY customer_city
+ORDER BY NO_OF_CUSTOMERS DESC;
 
 -- Q19. Which customers placed more than one order?
 
+SELECT C.customer_unique_id, COUNT(O.order_id) AS NO_OF_ORDERS
+FROM customers C JOIN orders O
+ON C.customer_id = O.customer_id
+GROUP BY C.customer_unique_id
+HAVING COUNT(O.order_id)>1
+ORDER BY NO_OF_ORDERS DESC;
+
 -- Q20. What is the average number of orders per customer?
 
-
+WITH NO_OF_ORDERS AS (
+SELECT C.customer_unique_id, COUNT(O.order_id) AS NO_OF_CUSTOMER_ORDERS
+FROM customers C JOIN orders O
+ON C.customer_id = O.customer_id
+GROUP BY C.customer_unique_id
+)
+SELECT ROUND(AVG(NO_OF_CUSTOMER_ORDERS),2) FROM NO_OF_ORDERS;
 
 -- ============================================================
 -- SECTION 5: DELIVERY PERFORMANCE ANALYSIS
--- Purpose:
--- Evaluate delivery efficiency and shipment performance.
 -- ============================================================
 
 -- Q21. What is the average delivery time?
+
+SELECT
+    ROUND(AVG(
+            EXTRACT(EPOCH FROM
+                (order_delivered_customer_date - order_purchase_timestamp)) / 86400 ),2)
+				AS AVG_DELIVERY_DAYS
+FROM orders
+WHERE order_delivered_customer_date IS NOT NULL;
 
 -- Q22. Which states have the longest average delivery time?
 
