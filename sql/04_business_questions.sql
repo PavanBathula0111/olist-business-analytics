@@ -262,13 +262,42 @@ SELECT
 FROM orders
 WHERE order_delivered_customer_date IS NOT NULL;
 
--- Q22. Which states have the longest average delivery time?
+-- Q22. Which states have the longest average delivery  time?
+
+SELECT C.customer_state,ROUND(AVG(EXTRACT(EPOCH FROM
+(O.order_delivered_customer_date - O.order_purchase_timestamp)) / 86400 ),2)
+AS AVG_DELIVERY_DAYS
+FROM orders O JOIN customers C
+ON C.customer_id=O.customer_id
+WHERE o.order_delivered_customer_date IS NOT NULL
+GROUP BY C.customer_state
+ORDER BY AVG_DELIVERY_DAYS DESC;
+
 
 -- Q23. How many orders were delivered after the estimated delivery date?
 
+WITH LATE_DELIVERY AS (SELECT COUNT(*) AS NO_OF_ORDERS_DELIVERED_LATE
+FROM orders
+WHERE order_estimated_delivery_date<order_delivered_customer_date
+AND order_delivered_customer_date IS NOT NULL)
+SELECT * FROM LATE_DELIVERY;
+
 -- Q24. What percentage of orders were delivered on time?
 
+WITH TOTAL_ORDERS AS (
+SELECT COUNT(*) AS TOTAL_ORDERS_PLACED
+FROM orders
+WHERE order_delivered_customer_date IS NOT NULL),
 
+LATE_DELIVERY AS (
+SELECT COUNT(*) AS NO_OF_ORDERS_DELIVERED_LATE
+FROM orders
+WHERE order_delivered_customer_date::DATE > order_estimated_delivery_date
+AND order_delivered_customer_date IS NOT NULL)
+
+SELECT ROUND((t.TOTAL_ORDERS_PLACED - L.NO_OF_ORDERS_DELIVERED_LATE)
+*100.0/t.TOTAL_ORDERS_PLACED,2)AS ON_TIME_DELIVERY_PERCENTAGE
+FROM TOTAL_ORDERS t CROSS JOIN LATE_DELIVERY L;
 
 -- ============================================================
 -- SECTION 6: CUSTOMER REVIEW ANALYSIS
