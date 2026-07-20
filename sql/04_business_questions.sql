@@ -1,4 +1,4 @@
-SET search_path TO olist;
+ SET search_path TO olist;
 -- ============================================================
 -- SECTION 1: SALES KPI ANALYSIS
 -- ============================================================
@@ -527,18 +527,172 @@ ORDER BY NO_OF_CATEGORIES DESC;
 
 -- Q42. What percentage of total revenue comes from the top 10 product categories?
 
+WITH category_revenue AS (
+    SELECT
+        p.product_category_name,
+        SUM(oi.price) AS category_revenue
+    FROM order_items oi
+    JOIN products p
+        ON oi.product_id = p.product_id
+    GROUP BY
+        p.product_category_name
+),
+top_10_categories AS (
+    SELECT
+        product_category_name,
+        category_revenue
+    FROM category_revenue
+    ORDER BY
+        category_revenue DESC
+    LIMIT 10
+)
+SELECT
+    ROUND(
+        SUM(t.category_revenue) * 100.0
+        / (SELECT SUM(category_revenue) FROM category_revenue),
+        2
+    ) AS top_10_revenue_percentage
+FROM top_10_categories t;
+
 -- Q43. What percentage of total revenue comes from the top 10 sellers?
+
+WITH SELLER_REVENUE AS(
+SELECT S.seller_id,SUM(OI.price) AS REVENUE
+FROM sellers S JOIN order_items OI
+ON S.seller_id = OI.seller_id
+GROUP BY S.seller_id
+ORDER BY REVENUE DESC
+),
+TOP10_SELLER AS(
+SELECT seller_id,REVENUE FROM  SELLER_REVENUE
+LIMIT 10
+)
+SELECT
+    ROUND(
+        SUM(SR.REVENUE) * 100.0
+        / (SELECT SUM(REVENUE) FROM SELLER_REVENUE),
+        2
+    ) AS top_10_seller_revenue_percentage
+FROM TOP10_SELLER SR;
 
 -- Q44. Which product categories have the highest average order value?
 
--- Q45. Which seller has the highest average review score?
+WITH CATEGORY_ORDER_VALUE AS(
+SELECT P.product_category_name,SUM(OI.price) AS ORDER_VALUE
+FROM order_items OI 
+JOIN products P
+ON OI.product_id = P.product_id
+GROUP BY P.product_category_name
+)
+SELECT CT.product_category_name_english AS CATEGORY,
+ROUND(AVG(COV.ORDER_VALUE),2) AS AVG_ORDER_VALUE
+FROM category_translation CT 
+JOIN CATEGORY_ORDER_VALUE COV
+ON CT.product_category_name = COV.product_category_name 
+GROUP BY
+    CT.product_category_name_english
+ORDER BY
+    AVG_ORDER_VALUE DESC
+LIMIT 10;
+
+-- Q45. Which sellers have the strongest review performance
+
+WITH order_sellers AS (
+SELECT DISTINCT
+order_id, seller_id
+FROM order_items
+),
+
+seller_reviews AS (
+SELECT os.seller_id, COUNT(*) AS review_count,
+AVG(orr.review_score) AS avg_review_score
+FROM order_sellers os
+JOIN order_reviews orr
+ON os.order_id = orr.order_id
+GROUP BY os.seller_id
+),
+
+AVG_REVIEWS AS (
+SELECT AVG(review_count) AS order_reviews
+FROM seller_reviews
+),
+
+review_benchmark AS (
+SELECT AVG(review_score) AS global_avg_score
+FROM order_reviews
+)
+
+SELECT sr.seller_id,sr.review_count,
+ROUND(sr.avg_review_score, 2) AS avg_review_score,
+ROUND((sr.review_count * sr.avg_review_score + AR.order_reviews * rb.global_avg_score)/ 
+(sr.review_count + AR.order_reviews),2) 
+AS weighted_review_score
+FROM seller_reviews sr
+CROSS JOIN review_benchmark rb,
+AVG_REVIEWS AR
+ORDER BY
+weighted_review_score DESC,
+review_count DESC
+LIMIT 10;
+
+
 
 -- Q46. Which seller generated the highest revenue in each state?
 
+SELECT oi.seller_id,c.customer_state,
+ROUND(SUM(oi.price), 2) AS revenue
+FROM order_items oi
+JOIN orders o
+ON oi.order_id = o.order_id
+JOIN customers c
+ON o.customer_id = c.customer_id
+GROUP BY oi.seller_id, c.customer_state
+ORDER BY revenue DESC;
+
+
 -- Q47. Which product category contributes the most freight cost?
+
+SELECT CT.product_category_name_english,
+	SUM(OI.freight_value) AS CATEGORY_FREIGHT_VALUE
+FROM Products P
+JOIN order_items OI
+ON P.product_id = OI.product_id
+JOIN category_translation CT
+ON CT.product_category_name = P.product_category_name
+GROUP BY CT.product_category_name_english
+ORDER BY CATEGORY_FREIGHT_VALUE DESC;
 
 -- Q48. Which customer state has the highest average order value?
 
+WITH ORDER_VALUE AS (
+SELECT C.customer_state,SUM(OI.price) AS TOTAL_ORDER_VALUE 
+FROM customers C 
+JOIN orders O 
+ON C.customer_id = O.customer_id 
+JOIN order_items OI 
+ON OI.order_id = O.order_id 
+GROUP BY  O.order_id,C.customer_state
+)
+
+SELECT customer_state,ROUND(AVG(TOTAL_ORDER_VALUE),2) AS AVG_ORDER_VALUE
+FROM ORDER_VALUE
+GROUP BY customer_state
+ORDER BY customer_state DESC
+LIMIT 1;
+
 -- Q49. Which day of the week has the highest number of orders?
 
+SELECT TO_CHAR(order_purchase_timestamp, 'Day') AS day_of_week,
+COUNT(order_id) AS total_orders
+FROM orders
+GROUP BY day_of_week
+ORDER BY total_orders DESC
+LIMIT 1;
+
 -- Q50. Which hour of the day receives the most orders?
+SELECT EXTRACT(HOUR FROM order_purchase_timestamp)AS hour_of_day,
+COUNT(order_id) AS total_orders
+FROM orders
+GROUP BY hour_of_day
+ORDER BY total_orders DESC
+LIMIT 1;

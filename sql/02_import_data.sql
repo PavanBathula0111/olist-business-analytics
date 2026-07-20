@@ -126,3 +126,15 @@ ADD CONSTRAINT fk_order_reviews_orders
 FOREIGN KEY (order_id)
 REFERENCES olist.orders(order_id);
 
+-- ============================================================
+-- Configure Relationship Between Products and Category Translation
+-- ============================================================
+ALTER TABLE category_translation
+ADD CONSTRAINT uq_category_translation_name
+UNIQUE (product_category_name);
+
+ALTER TABLE products
+ADD CONSTRAINT fk_products_category_translation
+FOREIGN KEY (product_category_name)
+REFERENCES category_translation(product_category_name);
+
