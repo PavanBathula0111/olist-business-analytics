@@ -99,6 +99,47 @@ JOIN order_items oi
 GROUP BY c.customer_state
 ORDER BY total_revenue DESC;
 
+
+-- ============================================================
+-- VIEW 4: PRODUCT ANALYSIS
+-- ============================================================
+
+CREATE OR REPLACE VIEW vw_product_analysis AS
+
+SELECT
+    COALESCE(
+        ct.product_category_name_english,
+        p.product_category_name,
+        'Unknown'
+    ) AS product_category,
+
+    COUNT(*) AS quantity_sold,
+
+    COUNT(DISTINCT oi.order_id) AS total_orders,
+
+    ROUND(SUM(oi.price), 2) AS total_revenue,
+
+    ROUND(AVG(oi.price), 2) AS average_price,
+
+    ROUND(AVG(oi.freight_value), 2) AS average_freight_cost
+
+FROM order_items oi
+
+JOIN products p
+ON oi.product_id = p.product_id
+
+LEFT JOIN category_translation ct
+ON p.product_category_name = ct.product_category_name
+
+GROUP BY
+    COALESCE(
+        ct.product_category_name_english,
+        p.product_category_name,
+        'Unknown'
+    )
+
+ORDER BY total_revenue DESC;
+
 -- ============================================================
 -- VIEW 5: SELLER ANALYSIS
 -- ============================================================
