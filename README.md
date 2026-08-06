@@ -215,16 +215,6 @@ Execute the SQL scripts inside the `sql/` directory in numerical order.
 
 ---
 
-## Tableau
-
-Open
-
-
-dashboards/Olist_dashboard.twb
-
-using Tableau Desktop.
----
-
 # 👨‍💻 Author
 
 **Pavan Kumar Bathula**
