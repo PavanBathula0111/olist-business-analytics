@@ -219,9 +219,8 @@ Execute the SQL scripts inside the `sql/` directory in numerical order.
 
 Open
 
-```
-dashboards/Olist_dashboard.twbx
-```
+
+dashboards/Olist_dashboard.twb
 
 using Tableau Desktop.
 ---
