@@ -2,15 +2,12 @@
 
 > An end-to-end Business Intelligence project built using **PostgreSQL** and **Tableau**, transforming the Brazilian Olist E-Commerce dataset into an interactive executive dashboard with dynamic cross-filtering, KPI reporting, and business insights.
 
----
 
 ## 📸 Dashboard Preview
 
-> **Add your dashboard screenshot here**
 
-![Dashboard](olist Dashboard.jpeg)
+![Dashboard](olist_Dashboard.jpeg)
 
----
 
 # 🚀 Project Overview
 
