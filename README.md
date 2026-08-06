@@ -224,25 +224,6 @@ dashboards/Olist_dashboard.twbx
 ```
 
 using Tableau Desktop.
-
----
-
-# 📷 Dashboard Preview
-
-Add screenshots inside
-
-```
-images/
-```
-
-Example:
-
-```
-images/dashboard-overview.png
-images/revenue-map.png
-images/top-products.png
-```
-
 ---
 
 # 👨‍💻 Author
@@ -250,8 +231,7 @@ images/top-products.png
 **Pavan Kumar Bathula**
 
 - GitHub: https://github.com/PavanBathula0111
-- LinkedIn: *(Add your LinkedIn URL here)*
-
+- LinkedIn: https://www.linkedin.com/in/bathula-pavan/
 ---
 
 # ⭐ If you found this project useful, consider giving it a star!
