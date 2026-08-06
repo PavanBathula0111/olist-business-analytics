@@ -9,7 +9,7 @@
 > **Add your dashboard screenshot here**
 
 ```text
-images/dashboard-overview.png
+olist-business-analytics/blob/main/ERD.png
 ```
 
 Example:
