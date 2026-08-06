@@ -8,15 +8,7 @@
 
 > **Add your dashboard screenshot here**
 
-```text
-olist-business-analytics/blob/main/ERD.png
-```
-
-Example:
-
-```md
-![Dashboard](images/dashboard-overview.png)
-```
+![Dashboard](olist Dashboard.jpeg)
 
 ---
 
