@@ -98,9 +98,8 @@ Main tables include:
 
 ## Entity Relationship Diagram
 
-```md
 ![ERD](ERD.png)
-```
+
 
 ---
 
